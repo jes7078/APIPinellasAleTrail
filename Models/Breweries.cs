@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace BreweriesAPI.Models
+namespace APIPinellasAleTrail.Models
 {
   public class Breweries
   {
