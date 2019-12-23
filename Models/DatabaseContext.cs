@@ -8,6 +8,11 @@ namespace APIPinellasAleTrail.Models
   public partial class DatabaseContext : DbContext
   {
 
+    public DbSet<Breweries> Breweries {get;set;}
+    public DbSet<Beers> Beers {get;set;}
+
+    public DbSet<BeerStyle> BeerStyle {get;set;}
+
     private string ConvertPostConnectionToConnectionString(string connection)
     {
       var _connection = connection.Replace("postgres://", String.Empty);
