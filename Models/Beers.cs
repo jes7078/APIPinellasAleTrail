@@ -11,8 +11,6 @@ namespace APIPinellasAleTrail.Models
 
     public string Brewery {get;set;}
 
-    public string BreweryURL {get;set;}
-
     public string Style {get;set;}
 
     public string Description {get;set;}
