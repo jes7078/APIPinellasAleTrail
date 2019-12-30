@@ -74,8 +74,8 @@ public ActionResult UpdateBeer (Beers Beer)
   }
   else 
   {
-      var sty = db.BeerStyle.FirstOrDefault(st=>st.Style==Beer.Style);
-  var bre = db.Breweries.FirstOrDefault(br=> br.Name==Beer.Brewery);
+    var sty = db.BeerStyle.FirstOrDefault(st=>st.Style==Beer.Style);
+    var bre = db.Breweries.FirstOrDefault(br=> br.Name==Beer.Brewery);
     prevBeer.Name=Beer.Name;
     prevBeer.Brewery=Beer.Brewery;
     prevBeer.Style=Beer.Style;
