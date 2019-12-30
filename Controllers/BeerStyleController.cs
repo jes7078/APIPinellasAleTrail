@@ -59,6 +59,25 @@ var db=new DatabaseContext();
 
 }
 
+[HttpPut("{id}")]
+public ActionResult UpdateBeerStyle (BeerStyle BeerStyle)
+{
+  var db= new DatabaseContext();
+  var prevBeerStyle=db.BeerStyle.FirstOrDefault(sty=>sty.Id==BeerStyle.Id);
+  if (prevBeerStyle == null)
+  {
+    return NotFound();
+  }
+  else 
+  {
+    prevBeerStyle.Style=BeerStyle.Style;
+    prevBeerStyle.Description=BeerStyle.Description;
+    prevBeerStyle.StyleURL=BeerStyle.StyleURL;
+    db.SaveChanges();
+    return Ok(prevBeerStyle);
+  }
+}
+
 
 
   }

@@ -63,5 +63,28 @@ var db=new DatabaseContext();
 
 }
 
+[HttpPut("{id}")]
+public ActionResult UpdateBeer (Beers Beer)
+{
+  var db= new DatabaseContext();
+  var prevBeer=db.Beers.FirstOrDefault(br=>br.Id==Beer.Id);
+  if (prevBeer == null)
+  {
+    return NotFound();
+  }
+  else 
+  {
+    prevBeer.Name=Beer.Name;
+    prevBeer.Brewery=Beer.Brewery;
+    prevBeer.BreweryURL=Beer.BreweryURL;
+    prevBeer.Style=Beer.Style;
+    prevBeer.Description=Beer.Description;
+    prevBeer.BeerURL=Beer.BeerURL;
+    prevBeer.ABV=Beer.ABV;
+    db.SaveChanges();
+    return Ok(prevBeer);
+  }
+}
+
   }
 }

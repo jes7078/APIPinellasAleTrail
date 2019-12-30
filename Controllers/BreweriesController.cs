@@ -59,6 +59,27 @@ var db=new DatabaseContext();
 
 }
 
+[HttpPut("{id}")]
+public ActionResult UpdateBrewery (Breweries Breweries)
+{
+  var db= new DatabaseContext();
+  var prevBrewery=db.Breweries.FirstOrDefault(bre=>bre.Id==Breweries.Id);
+  if (prevBrewery == null)
+  {
+    return NotFound();
+  }
+  else 
+  {
+    prevBrewery.Name=Breweries.Name;
+    prevBrewery.Url=Breweries.Url;
+    prevBrewery.Address=Breweries.Address;
+    prevBrewery.PhoneNumber=Breweries.PhoneNumber;
+    prevBrewery.Website=Breweries.Website;
+    db.SaveChanges();
+    return Ok(prevBrewery);
+  }
+}
+
 
   }
 }
