@@ -10,10 +10,35 @@ namespace APIPinellasAleTrail.Controllers
   public class BeerStyleController:ControllerBase
   {
 [HttpGet]
-public ActionResult GetAllBeerStyle()
+public ActionResult GetAllBeerStyles()
 {
   var db = new DatabaseContext();
   return Ok(db.BeerStyle);
+}
+
+[HttpGet("{id}")]
+public ActionResult GetOneBeerStyle(int id)
+{
+  var db = new DatabaseContext();
+  var style = db.BeerStyle.FirstOrDefault(Sty=>Sty.Id==id);
+  if (style==null)
+  {
+    return NotFound();
+  }
+  else
+  {
+    return Ok (style);
+  }
+}
+
+[HttpPost]
+public ActionResult CreateStyle(BeerStyle BeerStyle)
+{
+  var db = new DatabaseContext();
+  BeerStyle.Id=0;
+  db.BeerStyle.Add(BeerStyle);
+  db.SaveChanges();
+  return Ok(BeerStyle);
 }
 
 

@@ -13,10 +13,55 @@ namespace APIPinellasAleTrail.Controllers
 public ActionResult GetAllBeers()
 {
   var db = new DatabaseContext();
-  return Ok(db.Beers.OrderBy(Beers=>Beers.Name));
+  return Ok(db.Beers);
 }
 
+[HttpGet("{id}")]
+public ActionResult GetOneBeer(int id)
+{
+  var db = new DatabaseContext();
+  var beer = db.Beers.FirstOrDefault(Br=>Br.Id==id);
+  if (beer==null)
+  {
+    return NotFound();
+  }
+  else
+  {
+    return Ok (beer);
+  }
+}
 
+[HttpPost]
+public ActionResult CreateBeer(Beers Beer)
+{
+  var db = new DatabaseContext();
+  var sty = db.BeerStyle.FirstOrDefault(st=>st.Style==Beer.Style);
+  Beer.BeerStyleId=sty.Id;
+  var bre = db.Breweries.FirstOrDefault(br=> br.Name==Beer.Brewery);
+  Beer.BreweriesId=bre.Id;
+  Beer.Id=0;
+  db.Beers.Add(Beer);
+  db.SaveChanges();
+  return Ok(Beer);
+}
+
+[HttpDelete("{id}")]
+public ActionResult DeleteBeer(int id)
+{
+var db=new DatabaseContext();
+  var beer = db.Beers.FirstOrDefault(Br=>Br.Id==id);
+  if (beer==null)
+  {
+    return NotFound();
+  }
+  else
+  {
+    db.Beers.Remove(beer);
+    db.SaveChanges();
+    return Ok();
+  }
+
+}
 
   }
 }
