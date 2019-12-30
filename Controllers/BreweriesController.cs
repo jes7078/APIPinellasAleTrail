@@ -41,6 +41,24 @@ public ActionResult CreateBrewery(Breweries Brewery)
   return Ok(Brewery);
 }
 
+[HttpDelete("{id}")]
+public ActionResult DeleteBrewery(int id)
+{
+var db=new DatabaseContext();
+  var brewery = db.Breweries.FirstOrDefault(Bre=>Bre.Id==id);
+  if (brewery==null)
+  {
+    return NotFound();
+  }
+  else
+  {
+    db.Breweries.Remove(brewery);
+    db.SaveChanges();
+    return Ok();
+  }
+
+}
+
 
   }
 }

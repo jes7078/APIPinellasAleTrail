@@ -41,6 +41,24 @@ public ActionResult CreateStyle(BeerStyle BeerStyle)
   return Ok(BeerStyle);
 }
 
+[HttpDelete("{id}")]
+public ActionResult DeleteStyle(int id)
+{
+var db=new DatabaseContext();
+  var style = db.BeerStyle.FirstOrDefault(St=>St.Id==id);
+  if (style==null)
+  {
+    return NotFound();
+  }
+  else
+  {
+    db.BeerStyle.Remove(style);
+    db.SaveChanges();
+    return Ok();
+  }
+
+}
+
 
 
   }
