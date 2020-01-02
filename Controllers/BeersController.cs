@@ -20,7 +20,7 @@ public ActionResult GetAllBeers()
 public ActionResult GetOneBeer(int id)
 {
   var db = new DatabaseContext();
-  var beer = db.Beers.FirstOrDefault(Br=>Br.Id==id);
+  var beer = db.Beers.Include(i => i.BeerStyle).Include(i=>i.Breweries).FirstOrDefault(Br=>Br.Id==id);
   if (beer==null)
   {
     return NotFound();
