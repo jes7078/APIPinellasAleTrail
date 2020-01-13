@@ -1,85 +1,94 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIPinellasAleTrail.Models;
 
 namespace APIPinellasAleTrail.Controllers
 {
-  [ApiController]
   [Route("api/[controller]")]
+  [ApiController]
+  
   public class BreweriesController:ControllerBase
   {
-[HttpGet]
-public ActionResult GetAllBreweries()
+private readonly DatabaseContext db;
+public BreweriesController(DatabaseContext context)
 {
-  var db = new DatabaseContext();
-  return Ok(db.Breweries);
+  db=context;
+}
+
+[HttpGet]
+public async Task<ActionResult<IEnumerable<Breweries>>> GetAllBreweries()
+{
+  return await db.Breweries.OrderBy(o=>o.Name).ToListAsync();
 }
 
 [HttpGet("{id}")]
-public ActionResult GetOneBrewery(int id)
+public async Task<ActionResult<Breweries>> GetOneBrewery(int id)
 {
-  var db = new DatabaseContext();
-  var brewery = db.Breweries.FirstOrDefault(Brew=>Brew.Id==id);
-  if (brewery==null)
-  {
-    return NotFound();
-  }
-  else
-  {
-    return Ok (brewery);
-  }
+ var brewery=await db.Breweries.FirstOrDefaultAsync(f=>f.Id==id);
+ if (brewery==null)
+ {
+   return NotFound();
+ }
+ return brewery;
 }
 
 [HttpPost]
-public ActionResult CreateBrewery(Breweries Brewery)
+public async Task<ActionResult<Breweries>> CreateBrewery(Breweries Brewery)
 {
-  var db = new DatabaseContext();
-  Brewery.Id=0;
-  db.Breweries.Add(Brewery);
-  db.SaveChanges();
-  return Ok(Brewery);
+ db.Breweries.Add(Brewery);
+ await db.SaveChangesAsync();
+ return CreatedAtAction("GetBrewery", new{id=Brewery.Id},Brewery);
 }
 
 [HttpDelete("{id}")]
-public ActionResult DeleteBrewery(int id)
+public async Task<ActionResult<Breweries>> DeleteBrewery(int id)
 {
-var db=new DatabaseContext();
-  var brewery = db.Breweries.FirstOrDefault(Bre=>Bre.Id==id);
-  if (brewery==null)
-  {
-    return NotFound();
-  }
-  else
-  {
-    db.Breweries.Remove(brewery);
-    db.SaveChanges();
-    return Ok();
-  }
+var brewery= await db.Breweries.FindAsync(id);
+if (park==null)
+{
+  return NotFound();
+}
+db.Breweries.Remove(brewery);
+await db.SaveChangesAsync();
+return brewery;
 
 }
 
 [HttpPut("{id}")]
-public ActionResult UpdateBrewery (Breweries Breweries)
+public async Task<IActionResult> UpdateBrewery (int id, Breweries Breweries)
 {
-  var db= new DatabaseContext();
-  var prevBrewery=db.Breweries.FirstOrDefault(bre=>bre.Id==Breweries.Id);
-  if (prevBrewery == null)
+if (id !=Breweries.Id)
+{
+  return BadRequest();
+}
+db.Entry(Breweries).State=EntityState.Modified;
+try
+{
+  await db.SaveChangesAsync();
+}
+catch (DbUpdateConcurrencyException)
+{
+  if(!BreweryExists(id))
   {
     return NotFound();
   }
-  else 
+  else
   {
-    prevBrewery.Name=Breweries.Name;
-    prevBrewery.Url=Breweries.Url;
-    prevBrewery.Address=Breweries.Address;
-    prevBrewery.PhoneNumber=Breweries.PhoneNumber;
-    prevBrewery.Website=Breweries.Website;
-    db.SaveChanges();
-    return Ok(prevBrewery);
+  throw;
   }
 }
+return NoContent();
+}
 
+private bool BreweryExists(int id)
+{
+  return db.Breweries.Any(e=>e.Id==id);
+}
 
   }
 }
