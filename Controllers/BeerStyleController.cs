@@ -73,7 +73,7 @@ public async Task<ActionResult<BeerStyle>> DeleteBeerStyle(int id)
 
   db.BeerStyle.Remove(beerStyle);
   await db.SaveChangesAsync();
-  return beerStyle;
+  return Ok(beerStyle);
 }
 
 
@@ -107,7 +107,7 @@ catch (DbUpdateConcurrencyException)
   }
 }
 
-return NoContent();
+return Ok();
 }
 
 

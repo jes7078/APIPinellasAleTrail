@@ -80,7 +80,7 @@ if (beer==null)
 }
 db.Beers.Remove(beer);
 await db.SaveChangesAsync();
-return beer;
+return Ok(beer);
 }
 
 
@@ -110,7 +110,7 @@ public async Task<IActionResult> UpdateBeer (int id, Beers Beer)
       throw;
     }
   }
- return NoContent();
+ return Ok();
 }
 
 private bool BeerExists(int id)
