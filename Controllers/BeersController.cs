@@ -1,92 +1,92 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIPinellasAleTrail.Models;
 
 namespace APIPinellasAleTrail.Controllers
 {
-  [ApiController]
   [Route("api/[controller]")]
+  [ApiController]
   public class BeersController:ControllerBase
   {
+    private readonly DatabaseContext db;
+    public BeersController(DatabaseContext context)
+    {
+      db=context;
+    }
 [HttpGet]
-public ActionResult GetAllBeers()
+public async Task<ActionResult<IEnumerable<Beers>>> GetAllBeers()
 {
-  var db = new DatabaseContext();
-  return Ok(db.Beers);
+ 
+  return await db.Beers.OrderBy(o=>o.Name).ToListAsync();
 }
 
 [HttpGet("{id}")]
-public ActionResult GetOneBeer(int id)
+public async Task<ActionResult<Beers>> GetOneBeer(int id)
 {
-  var db = new DatabaseContext();
-  var beer = db.Beers.Include(i => i.BeerStyle).Include(i=>i.Breweries).FirstOrDefault(Br=>Br.Id==id);
+  var beer = await db.Beers.Include(i => i.BeerStyle).Include(i=>i.Breweries).FirstOrDefaultAsync(f=>f.Id==id);
   if (beer==null)
   {
     return NotFound();
   }
-  else
-  {
-    return Ok (beer);
-  }
+    return beer;
 }
 
 [HttpPost]
-public ActionResult CreateBeer(Beers Beer)
+public async Task<ActionResult<Beers>> CreateBeer(Beers Beer)
 {
-  var db = new DatabaseContext();
-  var sty = db.BeerStyle.FirstOrDefault(st=>st.Style==Beer.Style);
-  Beer.BeerStyleId=sty.Id;
-  var bre = db.Breweries.FirstOrDefault(br=> br.Name==Beer.Brewery);
-  Beer.BreweriesId=bre.Id;
-  Beer.Id=0;
-  db.Beers.Add(Beer);
-  db.SaveChanges();
-  return Ok(Beer);
+ db.Beers.Add(Beer);
+ await db.SaveChangesAsync();
+ return CreatedAtAction("GetBeer", new{id =Beer.Id},Beer);
 }
 
 [HttpDelete("{id}")]
-public ActionResult DeleteBeer(int id)
+public async Task<ActionResult<Beers>> DeleteBeer(int id)
 {
-var db=new DatabaseContext();
-  var beer = db.Beers.FirstOrDefault(Br=>Br.Id==id);
-  if (beer==null)
-  {
-    return NotFound();
-  }
-  else
-  {
-    db.Beers.Remove(beer);
-    db.SaveChanges();
-    return Ok();
-  }
-
+var beer=await db.Beers.FindAsync(id);
+if (beer==null)
+{
+  return NotFound();
+}
+db.Beers.Remove(beer);
+await db.SaveChangesAsync();
+return beer;
 }
 
 [HttpPut("{id}")]
-public ActionResult UpdateBeer (Beers Beer)
+public async Task<IActionResult> UpdateBeer (int id, Beers Beer)
 {
-  var db= new DatabaseContext();
-  var prevBeer=db.Beers.FirstOrDefault(br=>br.Id==Beer.Id);
-  if (prevBeer == null)
+  if (id!=Beer.Id)
   {
-    return NotFound();
+    return BadRequest();
   }
-  else 
+  db.Entry(Beer).State=EntityState.Modified;
+
+  try
   {
-    var sty = db.BeerStyle.FirstOrDefault(st=>st.Style==Beer.Style);
-    var bre = db.Breweries.FirstOrDefault(br=> br.Name==Beer.Brewery);
-    prevBeer.Name=Beer.Name;
-    prevBeer.Brewery=Beer.Brewery;
-    prevBeer.Style=Beer.Style;
-    prevBeer.Description=Beer.Description;
-    prevBeer.BeerURL=Beer.BeerURL;
-    prevBeer.ABV=Beer.ABV;
-    prevBeer.BeerStyleId=sty.Id;
-    prevBeer.BreweriesId=bre.Id;
-    db.SaveChanges();
-    return Ok(prevBeer);
+    await db.SaveChangesAsync();
   }
+  catch(DbUpdateConcurrencyException)
+  {
+    if(!BeerExists(id))
+    {
+      return NotFound();
+    }
+    else
+    {
+      throw;
+    }
+  }
+ return NoContent();
+}
+
+private bool BeerExists(int id)
+{
+  return db.Beers.Any(e=>e.Id==id);
 }
 
   }
