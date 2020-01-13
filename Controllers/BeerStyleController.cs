@@ -53,7 +53,7 @@ public async Task<ActionResult<BeerStyle>> CreateStyle(BeerStyle beerStyle)
 {
  db.BeerStyle.Add(beerStyle);
  await db.SaveChangesAsync();
- return CreatedAtAction("GetBeerStyle", new{id =beerStyle.Id},beerStyle);
+ return CreatedAtAction("GetOneStyle", new{id =beerStyle.Id},beerStyle);
 }
 
 

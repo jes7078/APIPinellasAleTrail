@@ -30,7 +30,7 @@ namespace APIPinellasAleTrail.Controllers
 public async Task<ActionResult<IEnumerable<Beers>>> GetAllBeers()
 {
  
-  return await db.Beers.OrderBy(o=>o.Name).ToListAsync();
+  return await db.Beers.Include(i => i.BeerStyle).Include(i=>i.Breweries).OrderBy(o=>o.Name).ToListAsync();
 }
 
 
@@ -61,7 +61,7 @@ public async Task<ActionResult<Beers>> CreateBeer(Beers Beer)
 {
  db.Beers.Add(Beer);
  await db.SaveChangesAsync();
- return CreatedAtAction("GetBeer", new{id =Beer.Id},Beer);
+ return CreatedAtAction("GetOneBeer", new{id =Beer.Id},Beer);
 }
 
 

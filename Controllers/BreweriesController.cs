@@ -42,20 +42,20 @@ public async Task<ActionResult<Breweries>> CreateBrewery(Breweries Brewery)
 {
  db.Breweries.Add(Brewery);
  await db.SaveChangesAsync();
- return CreatedAtAction("GetBrewery", new{id=Brewery.Id},Brewery);
+ return CreatedAtAction("GetOneBrewery", new{id=Brewery.Id},Brewery);
 }
 
 [HttpDelete("{id}")]
 public async Task<ActionResult<Breweries>> DeleteBrewery(int id)
 {
-var brewery= await db.Breweries.FindAsync(id);
-if (brewery==null)
+var bre= await db.Breweries.FindAsync(id);
+if (bre==null)
 {
   return NotFound();
 }
-db.Breweries.Remove(brewery);
+db.Breweries.Remove(bre);
 await db.SaveChangesAsync();
-return brewery;
+return Ok(bre);
 
 }
 
@@ -82,7 +82,7 @@ catch (DbUpdateConcurrencyException)
   throw;
   }
 }
-return NoContent();
+return Ok();
 }
 
 private bool BreweryExists(int id)
