@@ -18,12 +18,27 @@ namespace APIPinellasAleTrail.Controllers
     {
       db=context;
     }
+
+
+
+
+
+
+
+
 [HttpGet]
 public async Task<ActionResult<IEnumerable<Beers>>> GetAllBeers()
 {
  
   return await db.Beers.OrderBy(o=>o.Name).ToListAsync();
 }
+
+
+
+
+
+
+
 
 [HttpGet("{id}")]
 public async Task<ActionResult<Beers>> GetOneBeer(int id)
@@ -36,6 +51,11 @@ public async Task<ActionResult<Beers>> GetOneBeer(int id)
     return beer;
 }
 
+
+
+
+
+
 [HttpPost]
 public async Task<ActionResult<Beers>> CreateBeer(Beers Beer)
 {
@@ -43,6 +63,12 @@ public async Task<ActionResult<Beers>> CreateBeer(Beers Beer)
  await db.SaveChangesAsync();
  return CreatedAtAction("GetBeer", new{id =Beer.Id},Beer);
 }
+
+
+
+
+
+
 
 [HttpDelete("{id}")]
 public async Task<ActionResult<Beers>> DeleteBeer(int id)
@@ -56,6 +82,9 @@ db.Beers.Remove(beer);
 await db.SaveChangesAsync();
 return beer;
 }
+
+
+
 
 [HttpPut("{id}")]
 public async Task<IActionResult> UpdateBeer (int id, Beers Beer)

@@ -1,81 +1,131 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIPinellasAleTrail.Models;
 
 namespace APIPinellasAleTrail.Controllers
 {
-  [ApiController]
   [Route("api/[controller]")]
+  [ApiController]
   public class BeerStyleController:ControllerBase
   {
-[HttpGet]
-public ActionResult GetAllBeerStyles()
+    private readonly DatabaseContext db;
+    public BeerStyleController(DatabaseContext context)
+    {
+      db=context;
+    }
+
+
+
+
+  [HttpGet]
+public async Task<ActionResult<IEnumerable<BeerStyle>>> GetAllBeerStyles()
 {
-  var db = new DatabaseContext();
-  return Ok(db.BeerStyle);
+ 
+  return await db.BeerStyle.OrderBy(o=>o.Style).ToListAsync();
 }
+
+
+
+
+
 
 [HttpGet("{id}")]
-public ActionResult GetOneBeerStyle(int id)
+public async Task<ActionResult<BeerStyle>> GetOneStyle(int id)
 {
-  var db = new DatabaseContext();
-  var style = db.BeerStyle.FirstOrDefault(Sty=>Sty.Id==id);
-  if (style==null)
+  var beerstyle = await db.BeerStyle.FirstOrDefaultAsync(f=>f.Id==id);
+  if (beerstyle==null)
   {
     return NotFound();
   }
-  else
-  {
-    return Ok (style);
-  }
+    return beerstyle;
 }
+
+
+
 
 [HttpPost]
-public ActionResult CreateStyle(BeerStyle BeerStyle)
+public async Task<ActionResult<BeerStyle>> CreateStyle(BeerStyle beerStyle)
 {
-  var db = new DatabaseContext();
-  BeerStyle.Id=0;
-  db.BeerStyle.Add(BeerStyle);
-  db.SaveChanges();
-  return Ok(BeerStyle);
+ db.BeerStyle.Add(beerStyle);
+ await db.SaveChangesAsync();
+ return CreatedAtAction("GetBeerStyle", new{id =beerStyle.Id},beerStyle);
 }
 
+
+
+
+
+
+
 [HttpDelete("{id}")]
-public ActionResult DeleteStyle(int id)
+public async Task<ActionResult<BeerStyle>> DeleteBeerStyle(int id)
 {
-var db=new DatabaseContext();
-  var style = db.BeerStyle.FirstOrDefault(St=>St.Id==id);
-  if (style==null)
+  var beerStyle=await db.BeerStyle.FindAsync(id);
+  if (beerStyle==null)
+  {
+    return NotFound();
+  }
+
+  db.BeerStyle.Remove(beerStyle);
+  await db.SaveChangesAsync();
+  return beerStyle;
+}
+
+
+
+
+
+
+
+[HttpPut("{id}")]
+public async Task<IActionResult> UpdateBeerStyle (int id,BeerStyle beerStyle)
+{
+ if(id!=beerStyle.Id)
+ {
+   return BadRequest();
+ }
+ db.Entry(beerStyle).State=EntityState.Modified;
+
+try
+{
+    await db.SaveChangesAsync();
+}
+catch (DbUpdateConcurrencyException)
+{
+  if(!BeerStyleExists(id))
   {
     return NotFound();
   }
   else
   {
-    db.BeerStyle.Remove(style);
-    db.SaveChanges();
-    return Ok();
+    throw;
   }
-
 }
 
-[HttpPut("{id}")]
-public ActionResult UpdateBeerStyle (BeerStyle BeerStyle)
+return NoContent();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+private bool BeerStyleExists(int id)
 {
-  var db= new DatabaseContext();
-  var prevBeerStyle=db.BeerStyle.FirstOrDefault(sty=>sty.Id==BeerStyle.Id);
-  if (prevBeerStyle == null)
-  {
-    return NotFound();
-  }
-  else 
-  {
-    prevBeerStyle.Style=BeerStyle.Style;
-    prevBeerStyle.Description=BeerStyle.Description;
-    prevBeerStyle.StyleURL=BeerStyle.StyleURL;
-    db.SaveChanges();
-    return Ok(prevBeerStyle);
-  }
+  return db.BeerStyle.Any(e=>e.Id==id);
 }
 
 
