@@ -49,7 +49,7 @@ public async Task<ActionResult<Breweries>> CreateBrewery(Breweries Brewery)
 public async Task<ActionResult<Breweries>> DeleteBrewery(int id)
 {
 var brewery= await db.Breweries.FindAsync(id);
-if (park==null)
+if (brewery==null)
 {
   return NotFound();
 }
