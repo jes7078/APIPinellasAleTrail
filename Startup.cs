@@ -34,6 +34,9 @@ namespace APIPinellasAleTrail
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
       });
       services.AddDbContext<DatabaseContext>();
+      services.AddTransient<IImageHandler, ImageHandler>();
+      services.AddTransient<IImageWriter, ImageWriter>();
+      services.Configure<CloudinaryKeys>(opts => Configuration.Bind(opts));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

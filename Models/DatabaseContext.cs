@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using APIPinellasAleTrail.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -13,6 +14,14 @@ namespace APIPinellasAleTrail.Models
 
     public DbSet<BeerStyle> BeerStyle {get;set;}
 
+    public DatabaseContext()
+    {
+
+    }
+public DatabaseContext(DbContextOptions<DatabaseContext> options):base(options)
+{
+
+}
     private string ConvertPostConnectionToConnectionString(string connection)
     {
       var _connection = connection.Replace("postgres://", String.Empty);
@@ -35,7 +44,11 @@ namespace APIPinellasAleTrail.Models
       }
     }
 
-
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+  modelBuilder.HasAnnotation("ProductVersion", "2.2.0-rtm-35687");
+}
+public DbSet<Image> Images {get;set;}
 
   }
 }
