@@ -1,7 +1,7 @@
-docker build -t sdg-sample-api-template .
+docker build -t pinellas-ale-trail .
 
-docker tag sdg-sample-api-template registry.heroku.com/sdg-sample-api-template/web
+docker tag pinellas-ale-trail registry.heroku.com/pinellas-ale-trail/web
 
-docker push registry.heroku.com/sdg-sample-api-template/web
+docker push registry.heroku.com/pinellas-ale-trail/web
 
-heroku container:release web -a sdg-sample-api-template
+heroku container:release web -a pinellas-ale-trail
