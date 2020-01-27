@@ -25,9 +25,9 @@ namespace content.Controllers
     }
 
 [HttpPost]
-public async Task<ActionResult> UploadImage(IFormFile file, [FromForm] string Name)
+public async Task<ActionResult> UploadImage(IFormFile file, [FromForm] string Name, [FromQuery]string orientation)
 {
-  var path = await _imageHandler.UploadImage(file);
+  var path = await _imageHandler.UploadImage(file, orientation);
   var rv = new CloudinaryStorage(_options.Value).UploadFile(path);
 
   var image = new Image{

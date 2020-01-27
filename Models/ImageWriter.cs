@@ -4,22 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Metadata.Profiles.Exif;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace APIPinellasAleTrail.Models{
 
 
 public interface IImageWriter
 {
-  Task<string> UploadImage(IFormFile file);
+  Task<string> UploadImage(IFormFile file, string orientation);
 }
 public class ImageWriter : IImageWriter
 {
-  public async Task<string> UploadImage(IFormFile file)
+  public async Task<string> UploadImage(IFormFile file, string orientation)
   {
     var exists = CheckIfImageFile(file);
     if (exists)
     {
-      return await WriteFile(file);
+      return await WriteFile(file, orientation);
     }
     return "Invalid image file";
   }
@@ -35,7 +40,74 @@ private bool CheckIfImageFile(IFormFile file)
   return WriterHelper.GetImageFormat(fileBytes) != WriterHelper.ImageFormat.unknown;
 }
 
-public async Task<string> WriteFile(IFormFile file)
+  private byte[] TransformAvatarIfNeeded(byte[] imageInBytes, string orientation)
+    {
+        using (var image = SixLabors.ImageSharp.Image.Load(imageInBytes))
+        {
+            if (orientation == null) return imageInBytes;
+
+            RotateMode rotateMode;
+            FlipMode flipMode;
+            SetRotateFlipMode(orientation, out rotateMode, out flipMode);
+
+            image.Mutate(x => x.RotateFlip(rotateMode, flipMode));
+           
+
+            var imageFormat = SixLabors.ImageSharp.Image.DetectFormat(imageInBytes);
+
+            return ImageToByteArray(image, imageFormat);
+        }
+    }
+
+    private byte[] ImageToByteArray(Image<Rgba32> image, IImageFormat imageFormat)
+    {
+        using (var ms = new MemoryStream())
+        {
+            image.Save(ms, imageFormat);
+            return ms.ToArray();
+        }
+    }
+
+    private void SetRotateFlipMode(string orientation, out RotateMode rotateMode, out FlipMode flipMode)
+    {
+     
+        switch (orientation)
+        {
+            case "2":
+                rotateMode = RotateMode.None;
+                flipMode = FlipMode.Horizontal;
+                break;
+            case "3":
+                rotateMode = RotateMode.Rotate180;
+                flipMode = FlipMode.None;
+                break;
+            case "4":
+                rotateMode = RotateMode.Rotate180;
+                flipMode = FlipMode.Horizontal;
+                break;
+            case "5":
+                rotateMode = RotateMode.Rotate90;
+                flipMode = FlipMode.Horizontal;
+                break;
+            case "6":
+                rotateMode = RotateMode.Rotate90;
+                flipMode = FlipMode.None;
+                break;
+            case "7":
+                rotateMode = RotateMode.Rotate90;
+                flipMode = FlipMode.Vertical;
+                break;
+            case "8":
+                rotateMode = RotateMode.Rotate270;
+                flipMode = FlipMode.None;
+                break;
+            default:
+                rotateMode = RotateMode.None;
+                flipMode = FlipMode.None;
+                break;
+        }
+    }
+public async Task<string> WriteFile(IFormFile file, string orientation)
 {
   string fileName;
   var path = string.Empty;
@@ -44,10 +116,16 @@ public async Task<string> WriteFile(IFormFile file)
     var extension="." + file.FileName.Split('.')[file.FileName.Split('.').Length - 1];
     fileName=Guid.NewGuid().ToString() + extension;
     path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
-    using (var bits = new FileStream(path, FileMode.Create))
-    {
-      await file.CopyToAsync(bits);
+    // need to flip it
+    using (var ms = new MemoryStream()){
+      file.CopyTo(ms);
+      var fileBytes = ms.ToArray();
+      if (orientation != null){
+        fileBytes = this.TransformAvatarIfNeeded(fileBytes, orientation);
+      }
+      await File.WriteAllBytesAsync(path, fileBytes); 
     }
+
   }
   catch (Exception e)
   {

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 namespace APIPinellasAleTrail.Models{
 public interface IImageHandler
 {
-  Task<string> UploadImage(IFormFile file);
+  Task<string> UploadImage(IFormFile file,string orientation);
   Task DeleteFile(string path);
 }
 
@@ -21,9 +21,9 @@ public class ImageHandler : IImageHandler
   {
     File.Delete(path);
   }
-  public async Task<string> UploadImage(IFormFile file)
+  public async Task<string> UploadImage(IFormFile file, string orientation)
   { 
-    var result = await _imageWriter.UploadImage(file);
+    var result = await _imageWriter.UploadImage(file,orientation);
     return result;
   }
 }
